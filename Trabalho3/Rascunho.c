@@ -1,0 +1,179 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Node {
+    char name[50];
+    int ehPasta;  // 1 se for pasta, 0 se for arquivo
+    struct Node *primeiroFilho;
+    struct Node *proximoIrmao;
+    struct Node *pai;
+} Node;
+
+// inicializa um novo nó (pasta ou arquivo)
+
+Node* criarNo(const char *nome, int ehPasta) {
+    Node* novoNo = (Node*)malloc(sizeof(Node));
+    strcpy(novoNo->name, nome);
+    novoNo->ehPasta = ehPasta;
+    novoNo->primeiroFilho = NULL;
+    novoNo->proximoIrmao = NULL;
+    novoNo->pai = NULL;
+    return novoNo;
+}
+
+// insere um nó (arquivo ou pasta) na lista de filhos de um diretório pai
+
+void inserirNo(Node *pai, Node *novoNo) {
+    if (pai->primeiroFilho == NULL) {
+        pai->primeiroFilho = novoNo;
+    } else {
+        Node *atual = pai->primeiroFilho;
+        Node *anterior = NULL;
+        // Inserção ordenada lexicograficamente
+        while (atual != NULL && strcmp(atual->name, novoNo->name) < 0) {
+            anterior = atual;
+            atual = atual->proximoIrmao;
+        }
+        if (anterior == NULL) {
+            novoNo->proximoIrmao = pai->primeiroFilho;
+            pai->primeiroFilho = novoNo;
+        } else {
+            novoNo->proximoIrmao = atual;
+            anterior->proximoIrmao = novoNo;
+        }
+    }
+    novoNo->pai = pai;
+}
+
+// mostra o caminho da pasta corrente
+
+void mostrarCaminho(Node *atual) {
+    if (atual->pai != NULL) {
+        mostrarCaminho(atual->pai);
+        printf("-%s", atual->name);
+    }
+}
+
+// mostra o conteúdo de uma pasta
+
+void listarDiretorio(Node *atual) {
+    if (!atual->ehPasta) {
+        printf("comando invalido\n");
+        return;
+    }
+    Node *filho = atual->primeiroFilho;
+    while (filho != NULL) {
+        if (filho->ehPasta) {
+            printf("%s-\n", filho->name);
+        } else {
+            printf("%s\n", filho->name);
+        }
+        filho = filho->proximoIrmao;
+    }
+}
+
+// cria um arquivo
+
+void criarArquivo(Node *atual, const char *nome) {
+    inserirNo(atual, criarNo(nome, 0));
+}
+
+// cria uma pasta
+
+void criarPasta(Node *atual, const char *nome) {
+    inserirNo(atual, criarNo(nome, 1));
+}
+
+// muda o diretório corrente
+
+Node* mudarDiretorio(Node *atual, const char *nome) {
+    if (strcmp(nome, "..") == 0) {
+        return (atual->pai != NULL) ? atual->pai : atual;
+    }
+    Node *filho = atual->primeiroFilho;
+    while (filho != NULL) {
+        if (filho->ehPasta && strcmp(filho->name, nome) == 0) {
+            return filho;
+        }
+        filho = filho->proximoIrmao;
+    }
+    printf("comando invalido\n");
+    return atual;
+}
+
+// apaga um arquivo ou pasta
+
+void removerNo(Node *atual, const char *nome) {
+    Node *filho = atual->primeiroFilho;
+    Node *anterior = NULL;
+
+    while (filho != NULL && strcmp(filho->name, nome) != 0) {
+        anterior = filho;
+        filho = filho->proximoIrmao;
+    }
+
+    if (filho == NULL) {
+        printf("comando invalido\n");
+        return;
+    }
+
+    // Se o nó encontrado for uma pasta, apagar seus filhos
+    if (filho->ehPasta && filho->primeiroFilho != NULL) {
+        printf("comando invalido\n");
+        return;
+    }
+
+    // Se for o primeiro filho
+    if (anterior == NULL) {
+        atual->primeiroFilho = filho->proximoIrmao;
+    } else {
+        anterior->proximoIrmao = filho->proximoIrmao;
+    }
+    free(filho);
+}
+
+
+
+int main() {
+    Node *raiz = criarNo("", 1); // Raiz sem nome
+    Node *atual = raiz;
+
+    char comando[256];
+    char cmd[10], param[256];
+    int i = 1;
+    do{
+        mostrarCaminho(atual);
+        printf("-> ");
+        fgets(comando, 256, stdin);
+        sscanf(comando, "%s %s", cmd, param);
+
+        if(strcmp(cmd , "ls")){
+            listarDiretorio(atual);
+        }
+        else if(strcmp(cmd , "ma")){
+            criarArquivo(atual, param);
+        }
+        else if(strcmp(cmd , "mp")){
+            criarPasta(atual, param);
+        }
+        else if(strcmp(cmd , "cd")){
+            atual = mudarDiretorio(atual, param);
+        }
+        else if(strcmp(cmd , "rm")){
+            removerNo(atual, param);
+        }
+        else if(strcmp(cmd , "ex")){
+            printf("sistema encerrado\n");
+            i = 0;
+            break;
+        }
+        else{
+            printf("comando invalido\n");
+        }
+        
+    }while (i==0);
+
+    
+    return 0;
+}
