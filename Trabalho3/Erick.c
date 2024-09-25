@@ -133,37 +133,50 @@ void removerNo(Node *atual, const char *nome) {
     free(filho);
 }
 
-
+void copiarStr(char dest[], char orig[], int ini, int fim){
+    int i=0, tam=strlen(orig);
+    while(i+ini<tam && i<fim-ini && orig[i+ini] != '\0' && orig[i+ini] != '\n'){
+        dest[i] = orig[i+ini];
+        i++;
+    }
+    dest[i] = '\0';
+}
 
 int main() {
     Node *raiz = criarNo("", 1); // Raiz sem nome
     Node *atual = raiz;
 
-    char comando[256];
+    char str[20];
     char cmd[10], param[256];
     int i = 1;
     do{
         mostrarCaminho(atual);
         printf("-> ");
-        fgets(comando, 256, stdin);
-        sscanf(comando, "%s %s", cmd, param);
+        fflush(stdin);
+        fgets(str, 20, stdin);
+        copiarStr(cmd, str, 0, 2);
+        copiarStr(param, str, 3, 13);
+        printf("str: %s\ncmd: %s\npar: %s\n\n",str,cmd,param);
 
-        if(strcmp(cmd , "ls")){
+        if(strcmp(cmd , "ls") == 0){
             listarDiretorio(atual);
+            printf("teste ls\n");
         }
-        else if(strcmp(cmd , "ma")){
+        else if(strcmp(cmd , "ma" ) == 0){
             criarArquivo(atual, param);
+            printf("teste ma\n");
         }
-        else if(strcmp(cmd , "mp")){
+        else if(strcmp(cmd , "mp")==0){
             criarPasta(atual, param);
+            printf("teste mp\n");
         }
-        else if(strcmp(cmd , "cd")){
+        else if(strcmp(cmd , "cd")== 0){
             atual = mudarDiretorio(atual, param);
         }
-        else if(strcmp(cmd , "rm")){
+        else if(strcmp(cmd , "rm")==0){
             removerNo(atual, param);
         }
-        else if(strcmp(cmd , "ex")){
+        else if(strcmp(cmd , "ex")==0){
             printf("sistema encerrado\n");
             i = 0;
             break;
