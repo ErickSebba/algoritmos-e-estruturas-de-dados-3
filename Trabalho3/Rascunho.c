@@ -171,8 +171,8 @@ int main() {
         else{
             printf("comando invalido\n");
         }
-        
-    }while (i==0);
+
+    }while (i==1);
 
     
     return 0;
