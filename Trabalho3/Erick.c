@@ -108,29 +108,36 @@ void removerNo(Node *atual, const char *nome) {
     Node *filho = atual->primeiroFilho;
     Node *anterior = NULL;
 
+    // Busca o nó que deseja remover
     while (filho != NULL && strcmp(filho->name, nome) != 0) {
         anterior = filho;
         filho = filho->proximoIrmao;
     }
 
+    // Se não encontrar o nó
     if (filho == NULL) {
         printf("comando invalido\n");
         return;
     }
 
-    // Se o nó encontrado for uma pasta, apagar seus filhos
+    // Se o nó encontrado for uma pasta e contém filhos, remove recursivamente
     if (filho->ehPasta && filho->primeiroFilho != NULL) {
-        printf("comando invalido\n");
-        return;
+        Node *filhoAtual = filho->primeiroFilho;
+        while (filhoAtual != NULL) {
+            Node *temp = filhoAtual;
+            filhoAtual = filhoAtual->proximoIrmao;
+            removerNo(filho, temp->name); // Chama a remoção recursiva
+        }
     }
 
-    // Se for o primeiro filho
+    // Remoção do nó encontrado
     if (anterior == NULL) {
-        atual->primeiroFilho = filho->proximoIrmao;
+        atual->primeiroFilho = filho->proximoIrmao; // Se for o primeiro filho
     } else {
-        anterior->proximoIrmao = filho->proximoIrmao;
+        anterior->proximoIrmao = filho->proximoIrmao; // Se não for o primeiro
     }
-    free(filho);
+    
+    free(filho); // Libera a memória do nó
 }
 
 void copiarStr(char dest[], char orig[], int ini, int fim){
@@ -160,15 +167,15 @@ int main() {
 
         if(strcmp(cmd , "ls") == 0){
             listarDiretorio(atual);
-            printf("teste ls\n");
+
         }
         else if(strcmp(cmd , "ma" ) == 0){
             criarArquivo(atual, param);
-            printf("teste ma\n");
+
         }
         else if(strcmp(cmd , "mp")==0){
             criarPasta(atual, param);
-            printf("teste mp\n");
+
         }
         else if(strcmp(cmd , "cd")== 0){
             atual = mudarDiretorio(atual, param);
