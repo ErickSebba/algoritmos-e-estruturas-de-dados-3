@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Alunos: Erick Sebba, Enrico Soza, Daniel Zamariolli
 typedef struct Node {
     char name[50];
     int ehPasta;  // 1 se for pasta, 0 se for arquivo
@@ -89,6 +90,10 @@ void criarPasta(Node *atual, const char *nome) {
 
 Node* mudarDiretorio(Node *atual, const char *nome) {
     if (strcmp(nome, "..") == 0) {
+        if (atual->pai == NULL) {
+        printf("comando invalido\n");
+            return atual;
+        }
         return (atual->pai != NULL) ? atual->pai : atual;
     }
     Node *filho = atual->primeiroFilho;
@@ -158,12 +163,11 @@ int main() {
     int i = 1;
     do{
         mostrarCaminho(atual);
-        printf("-> ");
+        printf("->");
         fflush(stdin);
         fgets(str, 20, stdin);
         copiarStr(cmd, str, 0, 2);
         copiarStr(param, str, 3, 13);
-        printf("str: %s\ncmd: %s\npar: %s\n\n",str,cmd,param);
 
         if(strcmp(cmd , "ls") == 0){
             listarDiretorio(atual);
