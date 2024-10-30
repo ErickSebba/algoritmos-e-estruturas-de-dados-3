@@ -2,72 +2,96 @@
 #include <stdlib.h>
 #include <string.h>
 
-calculaDijkstra(int qtdnos, int origem, int matrizGrafos[qtdnos][qtdnos],int matrizDijkstra[qtdnos][3]){
-    int menor, custo, anterior;
-    
-    for(int k=0; k<qtdnos; k++){
-        if(matrizGrafos[origem][k] != -1){
-            matrizDijkstra[k][0] = matrizGrafos[origem][k];
-            matrizDijkstra[k][1] = origem;
+#define INF 9999 // Definindo um valor grande para representar infinito
+
+void calculaDijkstra(int qtdnos, int origem, int matrizGrafos[qtdnos][qtdnos], int matrizDijkstra[qtdnos][3]) {
+    for (int i = 0; i < qtdnos; i++) {
+        matrizDijkstra[i][0] = INF;  // Custo
+        matrizDijkstra[i][1] = -1;   // Anterior
+        matrizDijkstra[i][2] = 1;    // Aberto
+    }
+    matrizDijkstra[origem][0] = 0;  // A distância do nó de origem para si é 0
+
+    for (int i = 0; i < qtdnos; i++) {
+        int menor = -1;
+
+        for (int j = 0; j < qtdnos; j++) {
+            if (matrizDijkstra[j][2] && (menor == -1 || matrizDijkstra[j][0] < matrizDijkstra[menor][0])) {
+                menor = j;
+            }
+        }
+
+        if (menor == -1) break;  // Se todos os nós já estão fechados, encerra o loop
+        matrizDijkstra[menor][2] = 0;  // Fecha o nó encontrado
+
+        for (int k = 0; k < qtdnos; k++) {
+            if (matrizGrafos[menor][k] != -1 && matrizDijkstra[k][2]) { // Se existe um caminho e o nó está aberto
+                int novaDistancia = matrizDijkstra[menor][0] + matrizGrafos[menor][k];
+                if (novaDistancia < matrizDijkstra[k][0]) {
+                    matrizDijkstra[k][0] = novaDistancia;
+                    matrizDijkstra[k][1] = menor;
+                }
+            }
         }
     }
-    
-    for(int k=0; k<qtdnos; k++){
-        if(matrizDijkstra[k][0]<matrizDijkstra[menor][0] && matrizDijkstra[k][2] == 1){
-            menor = k;
-        }
+}
+
+void mostrarCaminho(int matrizDijkstra[][3], int origem, int destino) {
+    if (matrizDijkstra[destino][0] == INF) {
+        printf("custo: Inf\nnao existe um caminho entre %d e %d\n", origem + 1, destino + 1);
+        return;
     }
-    matrizDijkstra[menor][1]= origem;
+    printf("custo: %d\ncaminho: ", matrizDijkstra[destino][0]);
 
-    
+    int caminho[100], tamanho = 0;
+    for (int atual = destino; atual != -1; atual = matrizDijkstra[atual][1]) {
+        caminho[tamanho++] = atual;
+    }
 
+    for (int i = tamanho - 1; i >= 0; i--) {
+        printf("%d", caminho[i] + 1);  // Ajuste para exibir nós a partir de 1
+        if (i > 0) printf("->");
+    }
+    printf("\n");
+}
+
+int main() {
     int qtdnos, origem, destino;
     char resposta;
 
-    printf("informe a quantidade de nos no grafo:");
+    printf("informe a quantidade de nos no grafo: ");
     scanf("%d", &qtdnos);
 
     int matrizGrafos[qtdnos][qtdnos];
-    int matrizDijsktra[qtdnos][3];//numero de nos x custo[0] e anterior[1] e aberto(1)/fechado(0) [2]
+    int matrizDijkstra[qtdnos][3];  // custo[0], anterior[1], aberto(1)/fechado(0) [2]
 
-    for(origem = 0; origem  < qtdnos; origem++){
-        for(int destino = 0; destino < qtdnos; destino++){
+    for (origem = 0; origem < qtdnos; origem++) {
+        for (int destino = 0; destino < qtdnos; destino++) {
             matrizGrafos[origem][destino] = -1;
-            if(origem == destino){
+            if (origem == destino) {
                 matrizGrafos[origem][destino] = 0;
-            }else{
-            printf("mAdj(%d,%d):", origem,destino);
-            scanf("%d", &matrizGrafos[origem][destino]);
+            } else {
+                printf("mAdj(%d,%d): ", origem + 1, destino + 1);
+                scanf("%d", &matrizGrafos[origem][destino]);
             }
         }
     }
 
-    printf("\n");
-
-    printf("origem:");
+    printf("origem: ");
     scanf("%d", &origem);
-    printf("\n");
+    origem--;  // Ajuste para índice começando de 0
+    calculaDijkstra(qtdnos, origem, matrizGrafos, matrizDijkstra);
 
-    for(int i=0; i<qtdnos; i++){
-        matrizDijsktra[i][0] = -1;
-        matrizDijsktra[i][1] = NULL;
-        matrizDijsktra[i][2] = 1;
-    }
-    matrizDijsktra[origem][0] = 0;
-    
+    do {
+        printf("mostrar caminho ('s' ou 'n'): ");
+        scanf(" %c", &resposta);
+        if (resposta == 's') {
+            printf("destino: ");
+            scanf("%d", &destino);
+            destino--;  // Ajuste para índice começando de 0
+            mostrarCaminho(matrizDijkstra, origem, destino);
+        }
+    } while (resposta == 's');
 
-    calcularDijkstra(qtdnos, origem, matrizGrafos, matrizDijsktra);
-
-    printf("mostrar caminho('s' ou 'n'):");
-    scanf("%c", &resposta);
-    if(resposta == 's'){
-        printf("destino:");
-        scanf("%d", &destino);
-        printf("\n");
-    }
-    printf("destino:");
-    scanf("%d", &destino);
-    printf("\n");
-
-return 0;
+    return 0;
 }
