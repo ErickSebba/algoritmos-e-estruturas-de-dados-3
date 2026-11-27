@@ -159,6 +159,7 @@ int main() {
     return 0;
 }
 
+/*
 Descrição das Funções:
 create_node: Cria um novo nó, que pode ser um diretório ou arquivo.
 print_path: Imprime o caminho da pasta corrente até a raiz.
@@ -174,8 +175,4 @@ Observações:
 A árvore não tem limite de profundidade.
 Os arquivos e pastas são armazenados em ordem lexicográfica dentro do diretório.
 O programa termina ao receber o comando ex, exibindo "sistema encerrado".
-
-
-
-
-
+*/

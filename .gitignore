@@ -1,0 +1,11 @@
+# Binários
+*.exe
+*.o
+*.out
+output/
+build/
+
+# Editor e ferramentas de IA (ficam só no disco)
+.vscode/
+.claude/
+CLAUDE.md
